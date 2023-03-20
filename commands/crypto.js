@@ -40,14 +40,14 @@ module.exports = {
                                 } 
                             }
                         }).catch(err => {
-                            interaction.editReply({ content: `Some error with api call, please try again or ping my overseer.`});
+                            interaction.editReply({ content: `Some error with api call, please try again after my smoke break or ping the poolboy.`});
                         });
                         num++;
                     }
     
                     const embedToken = new EmbedBuilder()
-                        .setColor('DarkGreen')
-                        .setTitle(`Welcome to The Terminal`)
+                        .setColor('LuminousVividPink')
+                        .setTitle(`Flavio here, need anything else?`)
                         //.setAuthor({ name: client.user.username })
                         .setDescription(`The query results for ${ticker}:`)
                         .setThumbnail(client.user.avatarURL())
@@ -59,10 +59,10 @@ module.exports = {
                         interaction.editReply({ embeds: [embedToken]});
                 } catch(err) {
                     console.error(err);
-                    interaction.editReply({ content: `Some error building embed, please try again or ping my overseer.`});
+                    interaction.editReply({ content: `Some error building embed, please try again after my smoke break or ping the poolboy.`});
                     }
             } else {
-                interaction.editReply({ content: `Sorry, ${ticker} is unknown to me, please ask my overseer to update the database.` });
+                interaction.editReply({ content: `Sorry, ${ticker} is unknown to me, please ask the poolboy to update the database.` });
             }
         }
     };
