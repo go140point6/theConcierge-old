@@ -3,6 +3,7 @@ const client = require('../index');
 const axios = require('axios');
 
 var hrWFLR
+var flrPoolUSD
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,7 +23,15 @@ module.exports = {
 						hrWFLR = wflr.toFixed(2)
 					}
 				}
-			})    
+			})
+			
+			await axios.get(`https://api.coingecko.com/api/v3/coins/flare-networks`).then(res => {
+				//console.log(res.data)
+				let flr = res.data.market_data.current_price.usd;
+				console.log(flr)
+				flrPoolUSD = (flr * hrWFLR).toFixed(2)
+				console.log(flrPoolUSD)
+			})
 
 			const embedPool = new EmbedBuilder()
 				.setColor('LuminousVividPink')
@@ -32,6 +41,7 @@ module.exports = {
 				.setThumbnail(client.user.avatarURL())
 				.addFields(
 					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}`},
+					{ name: 'Pool USD Value:', value: `$${flrPoolUSD}`},
 				)
 				//.setImage('https://onxrp-marketplace.s3.us-east-2.amazonaws.com/nft-images/00081AF4B6C6354AE81B765895498071D5E681DB44D3DE8F1589271700000598-32c83d6e902f8.png')
 				.setTimestamp()
