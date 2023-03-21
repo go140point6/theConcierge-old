@@ -7,6 +7,9 @@ var flrPoolUSD
 var wflrBalance
 var flrShare
 var usdShare
+var myFlrShare
+var myUsdShare
+var mingos
 
 const formatterUSD = new Intl.NumberFormat('en-US', {
 	style: 'currency',
@@ -23,10 +26,18 @@ const formatterDecimal = new Intl.NumberFormat('en-US', {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('pool')
-        .setDescription('MingoPool balance in wFLR'),
+        .setName('mypool')
+        .setDescription('Your MingoPool share in wFLR and USD.')
+		.addStringOption((option) =>
+		option
+			.setName("mingos")
+			.setDescription("How many mingos in your flamboyance?")
+			.setRequired(true)
+	),
         async execute(interaction) {
             await interaction.deferReply();
+
+			mingos = (interaction.options.getString("mingos", true));
 
 			try {
 			await axios.get(`https://flare-explorer.flare.network/api?module=account&action=tokenlist&address=0xF837a20EE9a11BA1309526A4985A3B72278FA722`).then(res => {
@@ -38,7 +49,9 @@ module.exports = {
 						wflrBalance = Number(res.balance / 10 ** 18)
 						//console.log(wflr.toFixed(2))
 						hrWFLR = formatterDecimal.format(wflrBalance)
-						flrShare = formatterDecimal.format(wflrBalance/888)
+						flrShare = wflrBalance/888
+						formatFlrShare = formatterDecimal.format(flrShare)
+						myFlrShare = formatterDecimal.format(flrShare*mingos)
 					}
 				}
 			})
@@ -49,19 +62,20 @@ module.exports = {
 				//console.log(flr)
 				//flrPoolUSD = (flr * hrWFLR).toFixed(2)
 				flrPoolUSD = formatterUSD.format(flr * wflrBalance)
-				usdShare = formatterUSD.format((flr * wflrBalance)/888)
+				usdShare = (flr * wflrBalance)/888
+				formatUsdShare = formatterUSD.format(usdShare/888)
+				myUsdShare = formatterUSD.format((usdShare*mingos))
 			})
 
 			const embedPool = new EmbedBuilder()
 				.setColor('LuminousVividPink')
 				.setTitle(`Flavio here, need anything else?`)
 				//.setAuthor({ name: client.user.username })
-				//.setDescription(`The query results for ${ticker}:`)
+				.setDescription(`Your flamboyance of ${mingos}:`)
 				.setThumbnail(client.user.avatarURL())
 				.addFields(
-					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}`},
-					{ name: 'Pool USD Value:', value: `${flrPoolUSD}`},
-					{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR (${usdShare})`},
+					{ name: 'Your share (wFLR):', value: `${myFlrShare}`},
+					{ name: 'Your share (USD):', value: `${myUsdShare}`},
 				)
 				//.setImage('https://onxrp-marketplace.s3.us-east-2.amazonaws.com/nft-images/00081AF4B6C6354AE81B765895498071D5E681DB44D3DE8F1589271700000598-32c83d6e902f8.png')
 				.setTimestamp()
