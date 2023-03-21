@@ -4,6 +4,20 @@ const axios = require('axios');
 
 var hrWFLR
 var flrPoolUSD
+var wflrBalance
+
+const formatterUSD = new Intl.NumberFormat('en-US', {
+	style: 'currency',
+	currency: 'USD',
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+})
+
+const formatterDecimal = new Intl.NumberFormat('en-US', {
+	style: 'decimal',
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+})
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -18,9 +32,9 @@ module.exports = {
 	
 				for (const res of results) {
 					if (res.contractAddress === "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d") {
-						let wflr = Number(res.balance / 10 ** 18)
-						console.log(wflr.toFixed(2))
-						hrWFLR = wflr.toFixed(2)
+						wflrBalance = Number(res.balance / 10 ** 18)
+						//console.log(wflr.toFixed(2))
+						hrWFLR = formatterDecimal.format(wflrBalance)
 					}
 				}
 			})
@@ -29,8 +43,8 @@ module.exports = {
 				//console.log(res.data)
 				let flr = res.data.market_data.current_price.usd;
 				console.log(flr)
-				flrPoolUSD = (flr * hrWFLR).toFixed(2)
-				console.log(flrPoolUSD)
+				//flrPoolUSD = (flr * hrWFLR).toFixed(2)
+				flrPoolUSD = formatterUSD.format(flr * wflrBalance)
 			})
 
 			const embedPool = new EmbedBuilder()
@@ -41,7 +55,7 @@ module.exports = {
 				.setThumbnail(client.user.avatarURL())
 				.addFields(
 					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}`},
-					{ name: 'Pool USD Value:', value: `$${flrPoolUSD}`},
+					{ name: 'Pool USD Value:', value: `${flrPoolUSD}`},
 				)
 				//.setImage('https://onxrp-marketplace.s3.us-east-2.amazonaws.com/nft-images/00081AF4B6C6354AE81B765895498071D5E681DB44D3DE8F1589271700000598-32c83d6e902f8.png')
 				.setTimestamp()
