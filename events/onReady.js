@@ -53,7 +53,7 @@ function onReady(client) {
             channel.send({ embeds: [embedPoolChange] });
             //channel.send('Hello there!');
         }     
-    }, 10000);
+    }, process.env.INTERVAL);
     
     client.commands = new Collection();
 
