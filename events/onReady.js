@@ -4,12 +4,56 @@ const fs = require('node:fs');
 // Node's native path utility module. path helps construct paths to access files and directories. One of the advantages of the path module is that it automatically detects the operating system and uses the appropriate joiners.
 const path = require('node:path');
 const client = require('../index');
-const { REST, Routes, Collection } = require('discord.js');
+const { REST, Routes, Collection, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const Database = require('better-sqlite3');
 
+const formatterDecimal = new Intl.NumberFormat('en-US', {
+	style: 'decimal',
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+})
+
+var channelID = process.env.CHANNEL_ID
+var currentWFLR = 0
+var prevWFLR = 0
+
 function onReady(client) {
     console.log(`Ready! Logged in as ${client.user.tag}`)
+    var channel = client.channels.cache.get(channelID)
+    //client.channels.cache.get('935385528520540243').send('Hello here!');
+
+    setInterval(async function() {
+        console.log(currentWFLR)
+        console.log(prevWFLR)
+        if ( prevWFLR === 0 ) {
+            console.log("zero")
+            //console.log(channel)
+            prevWFLR = currentWFLR
+        } else if ( prevWFLR !== currentWFLR ) {
+            console.log("mingo pool unchanged")
+            let hrCurrFLR = formatterDecimal.format(currentWFLR)
+            let hrPrevWFLR = formatterDecimal.format(prevWFLR)
+            //client.channels.cache.get(channelID).send('Hello there!');
+            
+            const embedPoolChange = new EmbedBuilder()
+                .setColor('LuminousVividPink')
+                .setTitle(`Flavio here, need anything else?`)
+                //.setAuthor({ name: client.user.username })
+                .setDescription(`The MingoPool has changed!`)
+                .setThumbnail(client.user.avatarURL())
+                .addFields(
+                    { name: 'Old Balance: ', value: `${hrPrevWFLR}` },
+                    { name: 'New Balance: ', value: `${hrCurrFLR}` },
+                )
+                //.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
+                .setTimestamp()
+                //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
+
+            channel.send({ embeds: [embedPoolChange] });
+            //channel.send('Hello there!');
+        }     
+    }, 10000);
     
     client.commands = new Collection();
 
@@ -52,29 +96,92 @@ function onReady(client) {
 	    }
     })();
 
-    getXRPToken(); 
-    setInterval(getXRPToken, Math.max(1, 5 || 1) * 60 * 1000);
+    //getXRPToken(); 
+    //setInterval(getXRPToken, Math.max(1, 5 || 1) * 60 * 1000);
+    //getFLRToken();
+    //setInterval(getFLRToken, Math.max(1, 5 || 1) * 60 * 1000);
+    doAPICalls();
+    setInterval(doAPICalls, Math.max(1, 5 || 1) * 60 * 1 * 1000);
+    //doCheckPool();
+    //setInterval(doCheckPool, Math.max(1, 3 || 1) * 60 * 1 * 1000);
     
 };
 
-async function getXRP() {
-    await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ripple`).then(res => {
-               if (res.data && res.data[0].current_price) {
-                const currentXRP = res.data[0].current_price.toFixed(4) || 0 
-                //console.log("XRP current price: " + currentXRP);
-                module.exports.currentXRP = currentXRP;
+async function getFLR() {
+    await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=flare-networks`).then(res => {
+            if (res.data && res.data[0].current_price) {
+                const currentFLR = res.data[0].current_price.toFixed(4) || 0 
+                console.log("FLR current price: " + currentFLR);
+                module.exports.currentFLR = currentFLR;
             } else {
                 console.log("Error loading coin data")
             }
             //return;
         }).catch(err => {
             console.log("An error with the Coin Gecko api call: ", err.response.status, err.response.statusText);
-    });
+    })
 };
 
-async function getXRPToken() {
-    await getXRP();
+async function getPoolBalance(client) {
+    //try {
+    await axios.get(`https://flare-explorer.flare.network/api?module=account&action=tokenlist&address=0xF837a20EE9a11BA1309526A4985A3B72278FA722`).then(res => {
+            let results = res.data.result
+            if (results) {
+                for (const res of results) {
+                    if (res.contractAddress === "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d") {
+                        currentWFLR = Number(res.balance / 10 ** 18)
+
+                        console.log("wFLR current balance: ", currentWFLR.toFixed(2));
+                        module.exports.currentWFLR = currentWFLR;
+                        //hrWFLR = formatterDecimal.format(wflrBalance)
+                        //flrShare = formatterDecimal.format(wflrBalance/888)
+                        }
+                    }
+                } else {
+                    console.log("Error loading token data")
+                }
+        })
+        //catch(err) {
+		//	console.error(err);
+        //    interaction.editReply({ content: `Some error building embed, please try again or see if the poolboy is sober enough to assist.`});
+		//}
+};
+
+/*
+async function checkPoolBalance(currentWFLR) {
+    console.log("From function checkPoolBalance: ", currentWFLR)
+    //console.log(client)
+    //client.channels.cache.get('935385528520540243').send('Bingo');
 }
+*/
+
+/*
+async function sendMessage(client) {
+    //client.channels.cache.get('935385528520540243').send('Bingo');
+    //console.log("From function sendMessage: ", currentWFLR)
+    if (prevWFLR === 0) {
+        prevWFLR = currentWFLR
+        console.log(prevWFLR)
+    }
+    if (prevWFLR === currentWFLR) {
+        client.channels.cache.get('935385528520540243').send('wFLR has not changed');
+    } else {
+        client.channels.cache.get('935385528520540243').send('wFLR HAS changed');
+    }
+}
+*/
+
+async function doAPICalls() {
+    await getFLR();
+    await getPoolBalance();
+    //await sendMessage(client);
+}
+
+/*
+async function doCheckPool(currentWFLR, client) {
+    await checkPoolBalance(currentWFLR, client);
+}
+*/
 
 module.exports = { 
     onReady
