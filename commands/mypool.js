@@ -37,7 +37,7 @@ module.exports = {
 			.setRequired(true)
 	),
         async execute(interaction) {
-            await interaction.deferReply();
+            //await interaction.deferReply();
 
 			mingos = (interaction.options.getString("mingos", true));
 
@@ -85,7 +85,7 @@ module.exports = {
 				.setTimestamp()
 				//.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-				interaction.editReply({ embeds: [embedPool], ephemeral: true });
+				interaction.reply({ embeds: [embedPool], ephemeral: true });
 		} catch(err) {
 			console.error(err);
             interaction.editReply({ content: `Some error building embed, please try again or see if the poolboy is sober enough to assist.`});
