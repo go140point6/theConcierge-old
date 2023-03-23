@@ -85,7 +85,7 @@ module.exports = {
 				.setTimestamp()
 				//.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-				interaction.editReply({ embeds: [embedPool]});
+				interaction.editReply({ embeds: [embedPool], ephemeral: true });
 		} catch(err) {
 			console.error(err);
             interaction.editReply({ content: `Some error building embed, please try again or see if the poolboy is sober enough to assist.`});

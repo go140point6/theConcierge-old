@@ -31,7 +31,7 @@ function onReady(client) {
             //console.log(channel)
             prevWFLR = currentWFLR
         } else if ( prevWFLR !== currentWFLR ) {
-            console.log("mingo pool unchanged")
+            console.log("mingo pool changed!")
             let hrCurrFLR = formatterDecimal.format(currentWFLR)
             let hrPrevWFLR = formatterDecimal.format(prevWFLR)
             //client.channels.cache.get(channelID).send('Hello there!');
