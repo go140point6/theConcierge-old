@@ -24,10 +24,10 @@ function onReady(client) {
     //client.channels.cache.get('935385528520540243').send('Hello here!');
 
     setInterval(async function() {
-        console.log(currentWFLR)
-        console.log(prevWFLR)
+        //console.log(currentWFLR)
+        //console.log(prevWFLR)
         if ( prevWFLR === 0 ) {
-            console.log("zero")
+            //console.log("zero")
             //console.log(channel)
             prevWFLR = currentWFLR
         } else if ( prevWFLR !== currentWFLR ) {
