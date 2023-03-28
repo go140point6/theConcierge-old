@@ -38,9 +38,9 @@ function onReady(client) {
         if ( prevWFLR === 0 ) {
             //console.log("zero")
             //console.log(channel)
-            //prevWFLR = currentWFLR
-            prevWFLR = 900000
-            console.log(prevWFLR)
+            prevWFLR = currentWFLR
+            //prevWFLR = 900000
+            //console.log(prevWFLR)
         } else if ( prevWFLR > currentWFLR ) {
             let hrPercentage = formatterPercent.format(1-(currentWFLR/prevWFLR))
             console.log(`The Mingo Pool has ${decrease('decreased')}!`)
