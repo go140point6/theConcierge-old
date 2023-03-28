@@ -32,7 +32,7 @@ function onReady(client) {
             prevWFLR = currentWFLR
         } else if ( prevWFLR !== currentWFLR ) {
             console.log("mingo pool changed!")
-            let hrCurrFLR = formatterDecimal.format(currentWFLR)
+            let hrCurrWFLR = formatterDecimal.format(currentWFLR)
             let hrPrevWFLR = formatterDecimal.format(prevWFLR)
             //client.channels.cache.get(channelID).send('Hello there!');
             
@@ -44,7 +44,7 @@ function onReady(client) {
                 .setThumbnail(client.user.avatarURL())
                 .addFields(
                     { name: 'Old Balance: ', value: `${hrPrevWFLR}` },
-                    { name: 'New Balance: ', value: `${hrCurrFLR}` },
+                    { name: 'New Balance: ', value: `${hrCurrWFLR}` },
                 )
                 //.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
                 .setTimestamp()
