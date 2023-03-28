@@ -7,9 +7,18 @@ const client = require('../index');
 const { REST, Routes, Collection, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const Database = require('better-sqlite3');
+const chalk = require('chalk'); // npm install chalk@v4.1.2
+const decrease = chalk.bold.red
+const increase = chalk.bold.green
 
 const formatterDecimal = new Intl.NumberFormat('en-US', {
 	style: 'decimal',
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+})
+
+const formatterPercent = new Intl.NumberFormat('en-US', {
+	style: 'percent',
 	minimumFractionDigits: 2,
 	maximumFractionDigits: 2,
 })
@@ -29,9 +38,13 @@ function onReady(client) {
         if ( prevWFLR === 0 ) {
             //console.log("zero")
             //console.log(channel)
-            prevWFLR = currentWFLR
-        } else if ( prevWFLR !== currentWFLR ) {
-            console.log("mingo pool changed!")
+            //prevWFLR = currentWFLR
+            prevWFLR = 900000
+            console.log(prevWFLR)
+        } else if ( prevWFLR > currentWFLR ) {
+            let hrPercentage = formatterPercent.format(1-(currentWFLR/prevWFLR))
+            console.log(`The Mingo Pool has ${decrease('decreased')}!`)
+            console.log(`The decrease was ${hrPercentage}`)
             let hrCurrWFLR = formatterDecimal.format(currentWFLR)
             let hrPrevWFLR = formatterDecimal.format(prevWFLR)
             //client.channels.cache.get(channelID).send('Hello there!');
@@ -40,7 +53,7 @@ function onReady(client) {
                 .setColor('LuminousVividPink')
                 .setTitle(`Flavio here, need anything else?`)
                 //.setAuthor({ name: client.user.username })
-                .setDescription(`The MingoPool has changed!`)
+                .setDescription(`The Mingo Pool has decreased by ${hrPercentage}!`)
                 .setThumbnail(client.user.avatarURL())
                 .addFields(
                     { name: 'Old Balance: ', value: `${hrPrevWFLR}` },
@@ -53,7 +66,32 @@ function onReady(client) {
             channel.send({ embeds: [embedPoolChange] })
             prevWFLR = currentWFLR
             //channel.send('Hello there!');
-        }     
+        } else if ( prevWFLR < currentWFLR ) {
+            let hrPercentage = formatterPercent.format(-(1-(currentWFLR/prevWFLR)))
+            console.log(`The Mingo Pool has ${increase('increased')}!`)
+            console.log(`The increase was ${hrPercentage}`)
+            let hrCurrWFLR = formatterDecimal.format(currentWFLR)
+            let hrPrevWFLR = formatterDecimal.format(prevWFLR)
+            //client.channels.cache.get(channelID).send('Hello there!');
+            
+            const embedPoolChange = new EmbedBuilder()
+                .setColor('LuminousVividPink')
+                .setTitle(`Flavio here, need anything else?`)
+                //.setAuthor({ name: client.user.username })
+                .setDescription(`The Mingo Pool has increased by ${hrPercentage}!`)
+                .setThumbnail(client.user.avatarURL())
+                .addFields(
+                    { name: 'Old Balance: ', value: `${hrPrevWFLR}` },
+                    { name: 'New Balance: ', value: `${hrCurrWFLR}` },
+                )
+                //.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
+                .setTimestamp()
+                //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
+
+            channel.send({ embeds: [embedPoolChange] })
+            prevWFLR = currentWFLR
+            //channel.send('Hello there!');
+        }    
     }, process.env.INTERVAL);
     
     client.commands = new Collection();
