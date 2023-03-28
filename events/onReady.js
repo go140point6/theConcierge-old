@@ -50,7 +50,8 @@ function onReady(client) {
                 .setTimestamp()
                 //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-            channel.send({ embeds: [embedPoolChange] });
+            channel.send({ embeds: [embedPoolChange] })
+            prevWFLR = currentWFLR
             //channel.send('Hello there!');
         }     
     }, process.env.INTERVAL);
