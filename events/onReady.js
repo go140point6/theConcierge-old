@@ -38,6 +38,8 @@ function onReady(client) {
     //client.channels.cache.get('935385528520540243').send('Hello here!');
 
     setInterval(async function() {
+        await doMintCalls()
+        await doAPICalls()
         //console.log(currentWFLR)
         //console.log(prevWFLR)
         if ( prevWFLR === 0 ) {
@@ -98,10 +100,15 @@ function onReady(client) {
         }
 
         //let prevMint = 275
-        if ( currentMint > prevMint) {
-            count++
-            console.log(count)
-            if ( count === 15 ) { 
+        count++
+        console.log(count)
+        console.log("prevMint: ", prevMint)
+        console.log("currentMint: ", currentMint)
+        if (count === 15 ) {
+            if ( currentMint > prevMint) {
+            //count++
+            //console.log(count)
+            //if ( count === 15 ) { 
                 let last30 = (Number(currentMint) - Number(prevMint))
                 let totalPerc = formatterPercent.format(Number(currentMint)/888)
                 //let hrPercentage = formatterPercent.format(1-(currentWFLR/prevWFLR))
@@ -129,9 +136,10 @@ function onReady(client) {
                 channel_mint.send({ embeds: [embedMint] })
                 prevMint = currentMint
                 console.log("New prevMint: ", prevMint)
-                count = 0
+                //count = 0
                 //channel.send('Hello there!');
                 }
+                count = 0
             }    
     }, process.env.INTERVAL_POOL);
         
