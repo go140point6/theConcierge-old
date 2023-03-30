@@ -23,13 +23,18 @@ const formatterPercent = new Intl.NumberFormat('en-US', {
 	maximumFractionDigits: 2,
 })
 
-var channelID = process.env.CHANNEL_ID
+var channelID_Pool = process.env.CHANNEL_ID_POOL
+var channelID_Mint = process.env.CHANNEL_ID_MINT
 var currentWFLR = 0
 var prevWFLR = 0
+var currentMint
+var prevMint = 0
+var count = 0
 
 function onReady(client) {
     console.log(`Ready! Logged in as ${client.user.tag}`)
-    var channel = client.channels.cache.get(channelID)
+    var channel_pool = client.channels.cache.get(channelID_Pool)
+    var channel_mint = client.channels.cache.get(channelID_Mint)
     //client.channels.cache.get('935385528520540243').send('Hello here!');
 
     setInterval(async function() {
@@ -63,7 +68,7 @@ function onReady(client) {
                 .setTimestamp()
                 //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-            channel.send({ embeds: [embedPoolChange] })
+            channel_pool.send({ embeds: [embedPoolChange] })
             prevWFLR = currentWFLR
             //channel.send('Hello there!');
         } else if ( prevWFLR < currentWFLR ) {
@@ -88,12 +93,48 @@ function onReady(client) {
                 .setTimestamp()
                 //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-            channel.send({ embeds: [embedPoolChange] })
+            channel_pool.send({ embeds: [embedPoolChange] })
             prevWFLR = currentWFLR
-            //channel.send('Hello there!');
-        }    
-    }, process.env.INTERVAL);
-    
+        }
+
+        //let prevMint = 275
+        if ( currentMint > prevMint) {
+            count++
+            console.log(count)
+            if ( count === 15 ) { 
+                let last30 = (Number(currentMint) - Number(prevMint))
+                let totalPerc = formatterPercent.format(Number(currentMint)/888)
+                //let hrPercentage = formatterPercent.format(1-(currentWFLR/prevWFLR))
+                console.log(`The Frens Mint is at ${currentMint}!`)
+                console.log(`The total minted is ${totalPerc}`)
+                //let hrCurrWFLR = formatterDecimal.format(currentWFLR)
+                //let hrPrevWFLR = formatterDecimal.format(prevWFLR)
+                //client.channels.cache.get(channelID).send('Hello there!');
+                
+                const embedMint = new EmbedBuilder()
+                    .setColor('LuminousVividPink')
+                    .setTitle(`Flavio here, need anything else?`)
+                    //.setAuthor({ name: client.user.username })
+                    .setDescription(`Mingo Frens update:`)
+                    .setThumbnail(client.user.avatarURL())
+                    .addFields(
+                        { name: 'Number of recent mints (last 30 minutes): ', value: `${last30}` },
+                        { name: 'Total Mingo Frens mints: ', value: `${currentMint}` },
+                        { name: 'Percentage to sell out: ', value: `${totalPerc}` },
+                    )
+                    //.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
+                    .setTimestamp()
+                    //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
+
+                channel_mint.send({ embeds: [embedMint] })
+                prevMint = currentMint
+                console.log("New prevMint: ", prevMint)
+                count = 0
+                //channel.send('Hello there!');
+                }
+            }    
+    }, process.env.INTERVAL_POOL);
+        
     client.commands = new Collection();
 
     const commands = [];
@@ -140,7 +181,10 @@ function onReady(client) {
     //getFLRToken();
     //setInterval(getFLRToken, Math.max(1, 5 || 1) * 60 * 1000);
     doAPICalls();
-    setInterval(doAPICalls, Math.max(1, 5 || 1) * 60 * 1 * 1000);
+    doMintCalls();
+    // the functions above setIntervalMint and Pool, are self running based on that interval
+    //setInterval(doAPICalls, Math.max(1, 5 || 1) * 60 * 1 * 1000);
+    //setInterval(doMintCalls, Math.max(1, 10 || 1) * 60 * 1 * 1000);
     //doCheckPool();
     //setInterval(doCheckPool, Math.max(1, 3 || 1) * 60 * 1 * 1000);
     
@@ -160,6 +204,17 @@ async function getFLR() {
             console.log("An error with the Coin Gecko api call: ", err.response.status, err.response.statusText);
     })
 };
+
+async function getMint(client) {
+    await axios.get(`https://flare-explorer.flare.network/api?module=stats&action=tokensupply&contractaddress=0x595FA9efFad5c0c214b00b1e3004302519BfC1Db`).then(res => {
+        currentMint = res.data.result
+        if (prevMint === 0) {
+            prevMint = currentMint
+        }
+        console.log("Frens mint stands at: ", currentMint)
+        module.exports.currentMint = currentMint;
+    })
+}
 
 async function getPoolBalance(client) {
     //try {
@@ -209,6 +264,10 @@ async function sendMessage(client) {
     }
 }
 */
+
+async function doMintCalls() {
+    await getMint();
+}
 
 async function doAPICalls() {
     await getFLR();
