@@ -128,7 +128,7 @@ function onReady(client) {
                     .addFields(
                         { name: 'Number of recent mints (last 30 minutes): ', value: `${last30}` },
                         { name: 'Total Mingo Frens mints: ', value: `${currentMint}` },
-                        { name: 'Percentage to sell out: ', value: `${totalPerc}` },
+                        { name: 'Percent sold: ', value: `${totalPerc}` },
                     )
                     //.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
                     .setTimestamp()
