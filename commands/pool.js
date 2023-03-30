@@ -9,6 +9,9 @@ var flrPoolUSD
 //var wflrBalance
 var flrShare
 var usdShare
+var wflrBalance
+var totalMingos
+var totalFrens
 
 const formatterUSD = new Intl.NumberFormat('en-US', {
 	style: 'currency',
@@ -31,21 +34,23 @@ module.exports = {
             await interaction.deferReply();
 
 			try {
-			//await axios.get(`https://flare-explorer.flare.network/api?module=account&action=tokenlist&address=0xF837a20EE9a11BA1309526A4985A3B72278FA722`).then(res => {
+			await axios.get(`https://flare-explorer.flare.network/api?module=stats&action=tokensupply&contractaddress=0x595FA9efFad5c0c214b00b1e3004302519BfC1Db`).then(res => {
 				//let results = res.data.result
-				//console.log(res.data.results)
+				//console.log(results)
 	
 				//for (const res of results) {
 				//	if (res.contractAddress === "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d") {
-				//		wflrBalance = Number(res.balance / 10 ** 18)
-				//		//console.log(wflr.toFixed(2))
-						let wflrBalance = currentWFLR.currentWFLR 
+						//wflrBalance = Number(res.balance / 10 ** 18)
+						//console.log(wflr.toFixed(2))
+						wflrBalance = currentWFLR.currentWFLR 
 						console.log("In pool command, wFLR: ", wflrBalance)
 						hrWFLR = formatterDecimal.format(wflrBalance)
-						flrShare = formatterDecimal.format(wflrBalance/888)
+						totalFrens = res.data.result
+						totalMingos = (Number(totalFrens) + 888)
+						flrShare = formatterDecimal.format(wflrBalance/totalMingos)
 					//}
 				//}
-			//})
+			})
 			
 			//await axios.get(`https://api.coingecko.com/api/v3/coins/flare-networks`).then(res => {
 				//console.log(res.data)
@@ -66,8 +71,9 @@ module.exports = {
 					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}` },
 					{ name: 'Pool USD Value:', value: `${flrPoolUSD}` },
 					//{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR (${usdShare})`},
-					//{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR`},
-					{ name: 'Pool Share per Mingo:', value: 'recalibrating during mint' },
+					{ name: 'Total OG + Frens:', value: `${totalMingos}` },
+					{ name: 'Pool Share per Mingo (some FLR may still need to be wrapped):', value: `${flrShare} wFLR`},
+					//{ name: 'Pool Share per Mingo:', value: 'recalibrating during mint' },
 				)
 				//.setImage('https://onxrp-marketplace.s3.us-east-2.amazonaws.com/nft-images/00081AF4B6C6354AE81B765895498071D5E681DB44D3DE8F1589271700000598-32c83d6e902f8.png')
 				.setTimestamp()
