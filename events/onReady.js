@@ -105,7 +105,7 @@ function onReady(client) {
         console.log(count)
         console.log("prevMint: ", prevMint)
         console.log("currentMint: ", currentMint)
-        if (count === 5 ) {
+        if (count === 15 ) {
             if ( currentMint > prevMint) {
             //count++
             //console.log(count)
