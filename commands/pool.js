@@ -63,10 +63,11 @@ module.exports = {
 				//.setDescription(`The query results for ${ticker}:`)
 				.setThumbnail(client.user.avatarURL())
 				.addFields(
-					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}`},
-					{ name: 'Pool USD Value:', value: `${flrPoolUSD}`},
+					{ name: 'Pool Value (wFLR):', value: `${hrWFLR}` },
+					{ name: 'Pool USD Value:', value: `${flrPoolUSD}` },
 					//{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR (${usdShare})`},
-					{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR`},
+					//{ name: 'Pool Share per Mingo:', value: `${flrShare} wFLR`},
+					{ name: 'Pool Share per Mingo:', value: 'recalibrating during mint' },
 				)
 				//.setImage('https://onxrp-marketplace.s3.us-east-2.amazonaws.com/nft-images/00081AF4B6C6354AE81B765895498071D5E681DB44D3DE8F1589271700000598-32c83d6e902f8.png')
 				.setTimestamp()
