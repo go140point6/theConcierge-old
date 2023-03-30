@@ -30,6 +30,7 @@ var prevWFLR = 0
 var currentMint
 var prevMint = 0
 var count = 0
+var currentFLR = 0
 
 function onReady(client) {
     console.log(`Ready! Logged in as ${client.user.tag}`)
@@ -40,8 +41,8 @@ function onReady(client) {
     setInterval(async function() {
         await doMintCalls()
         await doAPICalls()
-        //console.log(currentWFLR)
-        //console.log(prevWFLR)
+        console.log("currentWFLR: ", currentWFLR)
+        console.log("prevWFLR: ", prevWFLR)
         if ( prevWFLR === 0 ) {
             //console.log("zero")
             //console.log(channel)
@@ -104,7 +105,7 @@ function onReady(client) {
         console.log(count)
         console.log("prevMint: ", prevMint)
         console.log("currentMint: ", currentMint)
-        if (count === 15 ) {
+        if (count === 5 ) {
             if ( currentMint > prevMint) {
             //count++
             //console.log(count)
@@ -199,9 +200,10 @@ function onReady(client) {
 };
 
 async function getFLR() {
-    await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=flare-networks`).then(res => {
-            if (res.data && res.data[0].current_price) {
-                const currentFLR = res.data[0].current_price.toFixed(4) || 0 
+    //await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=flare-networks`).then(res => {
+    await axios.get(`https://api.coingecko.com/api/v3/coins/flare-networks`).then(res => {
+            if(res.data && res.data.market_data.current_price.usd) {
+                currentFLR = res.data.market_data.current_price.usd.toFixed(4) || 0 
                 console.log("FLR current price: " + currentFLR);
                 module.exports.currentFLR = currentFLR;
             } else {
