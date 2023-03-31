@@ -12,6 +12,8 @@ var usdShare
 var myFlrShare
 var myUsdShare
 var mingos
+var totalFrens
+var totalMingos
 
 const formatterUSD = new Intl.NumberFormat('en-US', {
 	style: 'currency',
@@ -43,21 +45,31 @@ module.exports = {
 
 			try {
 			//await axios.get(`https://flare-explorer.flare.network/api?module=account&action=tokenlist&address=0xF837a20EE9a11BA1309526A4985A3B72278FA722`).then(res => {
+			await axios.get(`https://flare-explorer.flare.network/api?module=stats&action=tokensupply&contractaddress=0x595FA9efFad5c0c214b00b1e3004302519BfC1Db`).then(res => {
 				//let results = res.data.result
 				//console.log(res.data.results)
 	
 				//for (const res of results) {
 					//if (res.contractAddress === "0x1d80c49bbbcd1c0911346656b529df9e5c2f783d") {
-						let wflrBalance = currentWFLR.currentWFLR
+						wflrBalance = currentWFLR.currentWFLR
+						//console.log(wflrBalance)
 						//wflrBalance = Number(res.balance / 10 ** 18)
 						//console.log(wflr.toFixed(2))
 						hrWFLR = formatterDecimal.format(wflrBalance)
-						flrShare = wflrBalance/888
+						//console.log(hrWFLR)
+						totalFrens = res.data.result
+						//console.log(totalFrens)
+						totalMingos = (Number(totalFrens) + 888)
+						//console.log(totalMingos)
+						flrShare = wflrBalance/totalMingos
+						//console.log(flrShare)
 						formatFlrShare = formatterDecimal.format(flrShare)
+						//console.log(formatFlrShare)
 						myFlrShare = formatterDecimal.format(flrShare*mingos)
+						//console.log(myFlrShare)
 					//}
 				//}
-			//})
+			})
 			
 			//await axios.get(`https://api.coingecko.com/api/v3/coins/flare-networks`).then(res => {
 				//console.log(res.data)
@@ -66,8 +78,9 @@ module.exports = {
 				//console.log(flr)
 				//flrPoolUSD = (flr * hrWFLR).toFixed(2)
 				flrPoolUSD = formatterUSD.format(flr * wflrBalance)
-				usdShare = (flr * wflrBalance)/888
-				formatUsdShare = formatterUSD.format(usdShare/888)
+				usdShare = (flr * wflrBalance)/totalMingos
+				//usdShare = (flr * wflrBalance)/888
+				//formatUsdShare = formatterUSD.format(usdShare/888)
 				myUsdShare = formatterUSD.format((usdShare*mingos))
 			//})
 
