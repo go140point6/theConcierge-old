@@ -58,7 +58,7 @@ module.exports = {
 				//console.log(flr)
 				//flrPoolUSD = (flr * hrWFLR).toFixed(2)
 				flrPoolUSD = formatterUSD.format(flr * wflrBalance)
-				usdShare = formatterUSD.format((flr * wflrBalance)/888)
+				//usdShare = formatterUSD.format((flr * wflrBalance)/888)
 			//})
 
 			const embedPool = new EmbedBuilder()
