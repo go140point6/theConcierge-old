@@ -126,7 +126,7 @@ module.exports = {
 				.setThumbnail(client.user.avatarURL())
 				.addFields(
 					{ name: 'Current epoch: ', value: `${flrCurrentEpoch}`},
-                    { name: 'Current epoch ends (local): ', value: `${flrCurrentEpochEnds}`},
+                    { name: 'Current epoch (and lock zone) ends (local): ', value: `${flrCurrentEpochEnds}`},
                     { name: 'Start of Lock Zone (local): ', value: `${flrCurrentLockzoneBegins}`},
 				)
 				//.setImage('https://media.tenor.com/Egt2H3v94ZYAAAAd/dog-pool.gif')
