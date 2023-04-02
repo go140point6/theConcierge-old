@@ -23,6 +23,7 @@ var ftsoRegistryCA
 var ftsoManagerCA
 var flrPrice
 var flrCurrentEpoch
+var flrPrevEpoch
 var flrCurrentEpochEnds
 var flrCurrentLockzoneBegins
 var flrLockCurrentDeadlineMS
@@ -32,7 +33,8 @@ var flrLockAlarm3
 var flrLockAlarm1Set = 0
 var flrLockAlarm2Set = 0
 var flrLockAlarm3Set = 0
-var id  = '839645617911234601'
+//var id  = '839645617911234601'
+var id = '567425551229386758'
 
 var provider = new ethers.JsonRpcProvider(
     "https://flare-api.flare.network/ext/C/rpc"
@@ -85,6 +87,11 @@ function onReady(client) {
         await doEpochCalls()
         console.log("currentWFLR: ", currentWFLR)
         console.log("prevWFLR: ", prevWFLR)
+
+        console.log("Current epoch: ", flrCurrentEpoch)
+        flrNextEpoch = flrCurrentEpoch + 1
+        console.log("Next epoch: ", flrNextEpoch)
+
         if ( prevWFLR === 0 ) {
             //console.log("zero")
             //console.log(channel)
@@ -185,13 +192,28 @@ function onReady(client) {
                 count = 0
             }
             
+            //flrCurrentEpoch = 73
+            console.log("Current Epoch: ", flrCurrentEpoch)
+            console.log("Previous Epoch: ", flrPrevEpoch)
+            if ( flrCurrentEpoch !== flrPrevEpoch ) {
+                flrPrevEpoch = flrCurrentEpoch
+                console.log("Previous Epoch: ", flrPrevEpoch)
+                flrLockAlarm1Set = 0
+                flrLockAlarm2Set = 0
+                flrLockAlarm3Set = 0
+            }
+
             let checkAlarm = Date.now()
             console.log("Current time (miliseconds): ", checkAlarm)
+            // 30 minute window for Alarm 1 to trigger
+            let checkTimeDiff1 = checkAlarm - flrLockAlarm1
+            console.log("Current time diff: ", checkTimeDiff1)
             if (flrLockAlarm1Set == 0) {
                 console.log("Alarm 1 is 0")
-                if (checkAlarm > flrLockAlarm1) {
+                flrLockAlarm1Set = 1
+                if (checkAlarm > flrLockAlarm1 && checkTimeDiff1 < 1800000) {
                     console.log("Current time is less than Alarm 1 time, so trigger embed")
-                    flrLockAlarm1Set = 1
+                    //flrLockAlarm1Set = 1
 
                     const embedAlarm1 = new EmbedBuilder()
                     .setColor('LuminousVividPink')
@@ -208,15 +230,18 @@ function onReady(client) {
                     .setTimestamp()
                     //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-                channel_mint.send({ content:`<@${id}>`, embeds: [embedAlarm1] })
+                channel_mint.send({ embeds: [embedAlarm1] })
                 }
             }
 
+            // 30 minute window for Alarm 1 to trigger
+            let checkTimeDiff2 = checkAlarm - flrLockAlarm2
+            console.log("Current time diff: ", checkTimeDiff2)
             if (flrLockAlarm2Set == 0) {
                 console.log("Alarm 2 is 0")
-                if (checkAlarm > flrLockAlarm2) {
+                flrLockAlarm2Set = 1
+                if (checkAlarm > flrLockAlarm2 && checkTimeDiff2 < 1800000) {
                     console.log("Current time is less than Alarm 2 time, so trigger embed")
-                    flrLockAlarm2Set = 1
 
                     const embedAlarm2 = new EmbedBuilder()
                     .setColor('LuminousVividPink')
@@ -233,15 +258,18 @@ function onReady(client) {
                     .setTimestamp()
                     //.setFooter({ text: 'Powered by CoinGecko', iconURL: 'https://images2.imgbox.com/5f/85/MaZQ6yi0_o.png' });
 
-                channel_mint.send({ content:`<@${id}>`, embeds: [embedAlarm2] })
+                channel_mint.send({ embeds: [embedAlarm2] })
                 }
             }
 
+            // 30 minute window for Alarm 1 to trigger
+            let checkTimeDiff3 = checkAlarm - flrLockAlarm3
+            console.log("Current time diff: ", checkTimeDiff3)
             if (flrLockAlarm3Set == 0) {
                 console.log("Alarm 3 is 0")
-                if (checkAlarm > flrLockAlarm3) {
-                    console.log("Current time is less than Alarm 3 time, so trigger embed")
-                    flrLockAlarm3Set = 1
+                flrLockAlarm3Set = 1
+                if (checkAlarm > flrLockAlarm3 && checkTimeDiff3 < 1800000) {
+                    console.log("Current time is less than Alarm 3 time, so trigger embed")                    
 
                     const embedAlarm3 = new EmbedBuilder()
                     .setColor('LuminousVividPink')
@@ -310,7 +338,8 @@ function onReady(client) {
     //setInterval(getFLRToken, Math.max(1, 5 || 1) * 60 * 1000);
     doAPICalls();
     doMintCalls();
-    doEpochCalls();
+    doInitialEpochCalls();
+
     // the functions above setIntervalMint and Pool, are self running based on that interval
     //setInterval(doAPICalls, Math.max(1, 5 || 1) * 60 * 1 * 1000);
     //setInterval(doMintCalls, Math.max(1, 10 || 1) * 60 * 1 * 1000);
@@ -318,6 +347,61 @@ function onReady(client) {
     //setInterval(doCheckPool, Math.max(1, 3 || 1) * 60 * 1 * 1000);
     
 };
+
+async function getInitialFlrEpochInfo() {
+    ftsoManagerCA = await flareContractRegistryInstance.getContractAddressByName('FtsoManager')
+    //console.log("FTSO Manager CA: ", ftsoManagerCA)
+
+    const flareFtsoManager = {
+        address: ftsoManagerCA,
+        abi: fFMabi,
+    }
+
+    const flareFtsoManagerInstance = new ethers.Contract(
+        flareFtsoManager.address,
+        flareFtsoManager.abi,
+        provider
+    )
+
+    //console.log(flareFtsoManagerInstance)
+    let flrEpoch = await flareFtsoManagerInstance.getCurrentRewardEpoch()
+    let flrEpochEnds = await flareFtsoManagerInstance.currentRewardEpochEnds()
+    let flrEpochDuration = await flareFtsoManagerInstance.rewardEpochDurationSeconds()
+    //console.log(typeof(flrEpoch))
+    flrCurrentEpoch = Number(flrEpoch)
+    console.log("Current Flare Epoch ", flrCurrentEpoch)
+    // Not really the previous epoch, but this initally sets the current epoch as the previous one on bot start so the alarm trigger will reset
+    flrPrevEpoch = flrCurrentEpoch
+    console.log("Previous Flare Epoch: ", flrPrevEpoch)
+    //console.log("Current Flare Epoch ", Number(flrEpoch))
+    //console.log("Reward Epoch to Expire Next: ", Number(flrExpireEpoch))
+
+    let flrEpochEndsMS = Number(flrEpochEnds)*1000
+    //console.log("Current Reward Epoch Ends (miliseconds): ", flrEpochEndsMS)
+    let hrFlrEpochEnds = new Date(flrEpochEndsMS)
+    //console.log("Current Reward Epoch Ends (UTC): ", hrFlrEpochEnds.toUTCString())
+    //console.log("Current Reward Epoch Ends (Local): ", hrFlrEpochEnds.toLocaleString())
+    flrCurrentEpochEnds = hrFlrEpochEnds.toLocaleString()
+    
+    let flrEpochDurationMS = Number(flrEpochDuration)*1000
+    //console.log("Epoch Duration (miliseconds): ", flrEpochDurationMS)
+    let flrLockDeadlineMS = flrEpochDurationMS/2
+    //console.log("Epoch Lock Deadline (miliseconds): ", flrLockDeadlineMS)
+
+    flrLockCurrentDeadlineMS = flrEpochEndsMS - flrLockDeadlineMS
+    flrLockAlarm1 = flrLockCurrentDeadlineMS - 43200000
+    flrLockAlarm2 = flrLockCurrentDeadlineMS - 28800000
+    flrLockAlarm3 = flrLockCurrentDeadlineMS - 14400000
+    console.log("Epoch Lock Current Deadline (miliseconds): ", flrLockCurrentDeadlineMS)
+    console.log("Epoch Lock Alarm 1 (miliseconds): ", flrLockAlarm1)
+    console.log("Epoch Lock Alarm 2 (miliseconds): ", flrLockAlarm2)
+    console.log("Epoch Lock Alarm 3 (miliseconds): ", flrLockAlarm3)
+    
+    let hrFlrLockDeadline = new Date(flrLockCurrentDeadlineMS)
+    //console.log("Current Lock Deadline (UTC): ", hrFlrLockDeadline.toUTCString())
+    //console.log("Current Lock Deadline (Local): ", hrFlrLockDeadline.toLocaleString())
+    flrCurrentLockzoneBegins = hrFlrLockDeadline.toLocaleString()
+}
 
 async function getFlrEpochInfo() {
     ftsoManagerCA = await flareContractRegistryInstance.getContractAddressByName('FtsoManager')
@@ -445,6 +529,10 @@ async function sendMessage(client) {
     }
 }
 */
+
+async function doInitialEpochCalls() {
+    await getInitialFlrEpochInfo();
+}
 
 async function doEpochCalls() {
     await getFlrEpochInfo();
