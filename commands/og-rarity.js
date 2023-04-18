@@ -65,7 +65,7 @@ module.exports = {
             .setColor('LuminousVividPink')
             .setTitle(`Flavio here, need anything else?`)
             //.setAuthor({ name: client.user.username })
-            .setDescription(`There are only 888 Flaremingo, Sport... try a number between 1 and 888.`)
+            .setDescription(`There are only 888 Flaremingo in the wild, try a number between 1 and 888.`)
             .setThumbnail(client.user.avatarURL())
             //.addFields(
             //    { name: 'Your share (wFLR):', value: `${myFlrShare}`},
