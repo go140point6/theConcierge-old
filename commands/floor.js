@@ -1,5 +1,6 @@
 //const { SlashCommandBuilder, EmbedBuilder } = require('discord.js')
 //const client = require('../index')
+// npm install ethers@5.7.2
 const ethers = require('ethers')
 const fs = require('fs')
 
@@ -13,6 +14,7 @@ console.log(ethers.version)
 var provider = new ethers.providers.JsonRpcProvider(
     "https://flare-api.flare.network/ext/C/rpc"
     )
+
 
 // Create instance of contact
 const contractInstance = new ethers.Contract(
@@ -33,40 +35,5 @@ async function getLatestBlock() {
     console.log(latest)
 }
 
-//getLatestBlock()
+getLatestBlock()
 
-async function getLogs() {
-    console.log(`Getting the Flaremingos Transfer events...`);
-
-    //const cryptopunkContractAddress: string = '0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB'; 
-
-    const currentBlock = await provider.getBlockNumber()
-    console.log(currentBlock)
-
-    const eventSignature = 'Transfer(address,address,uint256)';
-    //const eventTopic = ethers.utils.id(eventSignature); // Get the data hex string
-    const eventTopic = contractInstance(eventSignature); // Get the data hex string
-
-    rawLogs = await provider.getLogs({
-        address: contractAddress,
-        topics: [eventTopic],
-        topics: [],
-        fromBlock: currentBlock - 30, 
-        toBlock: currentBlock
-    });
-}
-
-async function getEvents() {
-    console.log(`Getting the Flaremingo Frens events...`);
-
-    const currentBlock = await provider.getBlockNumber()
-    console.log(currentBlock)
-  
-    let events = await contractInstance.queryFilter(currentBlock - 30, currentBlock);
-  
-    console.log(events);
-  }
-
-getEvents()
-
-//getLogs()
